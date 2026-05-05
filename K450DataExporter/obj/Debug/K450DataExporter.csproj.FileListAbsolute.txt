@@ -1,0 +1,11 @@
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\bin\Debug\K450DataExporter.exe.config
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\bin\Debug\K450DataExporter.exe
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\bin\Debug\K450DataExporter.pdb
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\obj\Debug\K450DataExporter.csproj.AssemblyReference.cache
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\obj\Debug\K450DataExporter.Form1.resources
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\obj\Debug\K450DataExporter.Properties.Resources.resources
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\obj\Debug\K450DataExporter.csproj.GenerateResource.cache
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\obj\Debug\K450DataExporter.csproj.CoreCompileInputs.cache
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\obj\Debug\K450DataExporter.exe
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\obj\Debug\K450DataExporter.pdb
+C:\Users\TecJIa\Desktop\K450DataExporter\K450DataExporter\obj\Debug\K450DataExporter.Form2.resources
