@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.OleDb;
 using System.Drawing;
+using System.Drawing.Printing;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+
 
 namespace K450DataExporter
 {
@@ -101,6 +103,8 @@ namespace K450DataExporter
             btnFirstTimePDR.Click += (s, e) => SetFirstLastTime(textFromTimePDR, true);
             btnLastTimePDR.Click += (s, e) => SetFirstLastTime(textToTimePDR, false);
             btnDiagnose.Click += BtnDiagnose_Click;
+            btnPrintODR.Click += btnPrintODR_Click;
+            btnPrintPDR.Click += btnPrintPDR_Click;
         }
 
         private void AttachPlaceholders()
@@ -615,7 +619,7 @@ namespace K450DataExporter
                 }
 
                 // Вычисляем выражение
-                
+
                 var computedValue = dt.Compute(expression, "");
                 return Convert.ToDouble(computedValue).ToString("0.###");
             }
@@ -694,8 +698,6 @@ namespace K450DataExporter
             }
         }
 
-
-
         #endregion
 
         #region Основные операции
@@ -720,8 +722,6 @@ namespace K450DataExporter
 
             if (archive == ArchiveType.RealTime)
             {
-                // Для RealTime нужно выбрать поля по GRID
-                // Здесь нужен отдельный запрос для RealTime
                 var dbColumns = new List<string> { "[Data]", "[Ora]", "[Cy]" };
                 foreach (var field in parameters.GridFields)
                 {
@@ -738,9 +738,18 @@ namespace K450DataExporter
                 if (data != null)
                 {
                     DisplayOdrRealtimeTable(dataTableODR, data, parameters, parameters.GridFields);
-                    btnExportODR.Enabled = data.Rows.Count > 0;
+
+                    // --- УПРАВЛЕНИЕ КНОПКАМИ ---
+                    bool hasRows = data.Rows.Count > 0;
+                    btnExportODR.Enabled = hasRows;
+                    btnPrintODR.Enabled = hasRows; // Включаем/выключаем печать ODR
+
                     MessageBox.Show($"Загружено записей: {data.Rows.Count}", "Готово",
                         MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    btnPrintODR.Enabled = false; // На всякий случай гасим, если запрос вернул null
                 }
             }
             else
@@ -770,7 +779,11 @@ namespace K450DataExporter
                     }
 
                     dataTableODR.DataSource = reportTable;
+
+                    // --- УПРАВЛЕНИЕ КНОПКАМИ ---
                     btnExportODR.Enabled = true;
+                    btnPrintODR.Enabled = true; // Включаем печать для исторического отчета ODR
+
                     dataTableODR.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
                     if (dataTableODR.Columns.Count >= 3)
@@ -779,6 +792,12 @@ namespace K450DataExporter
                         dataTableODR.Columns[1].Width = 120;
                         dataTableODR.Columns[2].Width = 100;
                     }
+                }
+                else
+                {
+                    // Если исторических данных нет — гасим обе кнопки
+                    btnExportODR.Enabled = false;
+                    btnPrintODR.Enabled = false;
                 }
             }
         }
@@ -797,22 +816,18 @@ namespace K450DataExporter
             string whereClause = $"[Data] BETWEEN #{parameters.FromDate:MM/dd/yyyy}# AND #{parameters.ToDate:MM/dd/yyyy}# " +
                                  $"AND [Ora] BETWEEN #{parameters.FromTime}# AND #{parameters.ToTime}#";
 
-            // ШАГ 1: Для каждой формулы отчёта раскрываем PRD и упрощаем
-            // ШАГ 1: Для каждой формулы отчёта раскрываем PRD и упрощаем
             var simplifiedFormulas = new List<string>();
             foreach (var reportField in infParser.ProductReportFields)
             {
                 string expanded = ExpandPrdToPrc(reportField.Formula);
                 string simplified = SimplifyFormula(expanded);
 
-                // Дополнительная очистка: убираем лишние *1
                 simplified = simplified.Replace("*1", "");
                 simplified = simplified.Replace("1*", "");
 
                 simplifiedFormulas.Add(simplified);
             }
 
-            // ШАГ 2: Собираем все уникальные PRC поля из упрощённых формул
             var requiredPrcFields = new HashSet<string>();
             foreach (string formula in simplifiedFormulas)
             {
@@ -823,7 +838,6 @@ namespace K450DataExporter
                 }
             }
 
-            // ШАГ 3: Строим SQL запрос
             var selectParts = new List<string>();
             foreach (string field in requiredPrcFields)
             {
@@ -855,7 +869,6 @@ namespace K450DataExporter
                 reportTable.Columns.Add("Значение", typeof(string));
                 reportTable.Columns.Add("Ед. изм.", typeof(string));
 
-                // ШАГ 4: Для каждой формулы вычисляем значение
                 for (int i = 0; i < infParser.ProductReportFields.Count; i++)
                 {
                     var reportField = infParser.ProductReportFields[i];
@@ -865,7 +878,11 @@ namespace K450DataExporter
                 }
 
                 dataTablePDR.DataSource = reportTable;
+
+                // --- УПРАВЛЕНИЕ КНОПКАМИ ---
                 btnExportPDR.Enabled = true;
+                btnPrintPDR.Enabled = true; // Включаем печать для PDR отчета
+
                 dataTablePDR.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
 
                 if (dataTablePDR.Columns.Count >= 3)
@@ -874,6 +891,12 @@ namespace K450DataExporter
                     dataTablePDR.Columns[1].Width = 120;
                     dataTablePDR.Columns[2].Width = 100;
                 }
+            }
+            else
+            {
+                // Если данных по PDR нет — блокируем кнопки
+                btnExportPDR.Enabled = false;
+                btnPrintPDR.Enabled = false;
             }
         }
 
@@ -963,7 +986,7 @@ namespace K450DataExporter
 
             if (archive == ArchiveType.RealTime)
             {
-                // Для RealTime нужно выбрать поля по GRID
+                // --- РЕЖИМ REALTIME (Широкая таблица, много колонок PRCxxx) ---
                 var dbColumns = new List<string> { "[Data]", "[Ora]", "[Cy]" };
                 foreach (var field in parameters.GridFields)
                 {
@@ -979,6 +1002,7 @@ namespace K450DataExporter
                 DataTable data = ExecuteQuery(sqlQuery);
                 if (data != null && data.Rows.Count > 0)
                 {
+                    // Здесь работает модифицированный SaveDataTableToCsv (который сопоставляет заголовки колонок)
                     SaveDataTableToCsv(data, parameters, "ODR");
                     btnExportODR.Enabled = true;
                 }
@@ -989,6 +1013,7 @@ namespace K450DataExporter
             }
             else
             {
+                // --- РЕЖИМ HISTORICAL (Вертикальный отчет: Параметр, Значение, Ед.изм) ---
                 string dynamicQuery = BuildDynamicSqlQuery(whereClause, infParser.ProcessReportFields);
 
                 if (string.IsNullOrEmpty(dynamicQuery))
@@ -1010,9 +1035,22 @@ namespace K450DataExporter
                     foreach (var reportField in infParser.ProcessReportFields)
                     {
                         string value = CalculateFormulaFromData(reportField.Formula, row);
-                        reportTable.Rows.Add(reportField.Name, value, reportField.Unit);
+
+                        // Формируем понятное имя для первой ячейки строки.
+                        // Например, вместо "PRC029" запишет "PRC029 (Температура бака)"
+                        string displayName = reportField.Name;
+                        if (!string.IsNullOrEmpty(reportField.Alias) && reportField.Alias != reportField.Name)
+                        {
+                            displayName = $"{reportField.Name} ({reportField.Alias})";
+
+                            // Если тебе в CSV нужен ТОЛЬКО комментарий без PRCxxx, закомментируй строку выше и раскомментируй строку ниже:
+                            // displayName = reportField.Alias;
+                        }
+
+                        reportTable.Rows.Add(displayName, value, reportField.Unit);
                     }
 
+                    // Вызываем экспорт трехколоночной таблицы, где внутри ячеек уже лежат комментарии
                     SaveReportTableToCsv(reportTable, parameters, "ODR");
                 }
                 else
@@ -1124,32 +1162,77 @@ namespace K450DataExporter
                     sw.WriteLine($"# {queryInfo}");
                     sw.WriteLine("#");
 
+                    // =================================================================
+                    // 1. БЛОК ЗАПИСИ ЗАГОЛОВКОВ С КОММЕНТАРИЯМИ
+                    // =================================================================
                     for (int i = 0; i < data.Columns.Count; i++)
                     {
-                        sw.Write(data.Columns[i].ColumnName);
+                        string columnName = data.Columns[i].ColumnName;
+                        string headerText = columnName;
+
+                        // Исключаем системные колонки времени и циклов, их переводить не нужно
+                        if (columnName != "Data" && columnName != "Ora" && columnName != "Cy")
+                        {
+                            // Ищем описание поля в параметрах GRID
+                            if (parameters.GridFields != null)
+                            {
+                                var fieldInfo = parameters.GridFields.FirstOrDefault(f => f.FieldName.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+
+                                if (fieldInfo != null)
+                                {
+                                    // Формируем красивое описание. Например: "PRC001 (Cycle time)"
+                                    string description = !string.IsNullOrEmpty(fieldInfo.Alias) ? fieldInfo.Alias : "Без описания";
+
+                                    // Если есть адекватная единица измерения, добавляем и её
+                                    if (!string.IsNullOrEmpty(fieldInfo.Unit) && fieldInfo.Unit != "#" && fieldInfo.Unit != "null")
+                                    {
+                                        headerText = $"{columnName} ({description}, {fieldInfo.Unit})";
+                                    }
+                                    else
+                                    {
+                                        headerText = $"{columnName} ({description})";
+                                    }
+                                }
+                            }
+                        }
+                        else if (columnName == "Cy")
+                        {
+                            headerText = "Cy (Номер цикла)"; // Небольшой бонус для удобства пользователя
+                        }
+
+                        sw.Write(headerText);
                         if (i < data.Columns.Count - 1) sw.Write(";");
                     }
                     sw.WriteLine();
 
+                    // =================================================================
+                    // 2. ДОБАВЛЕННЫЙ БЛОК: ЗАПИСЬ СТРОК С ДАННЫМИ
+                    // =================================================================
                     foreach (DataRow row in data.Rows)
                     {
                         for (int i = 0; i < data.Columns.Count; i++)
                         {
                             object cellValue = row[i];
-                            if (cellValue is DateTime)
+                            string cellText = "";
+
+                            if (cellValue != DBNull.Value && cellValue != null)
                             {
-                                DateTime dtValue = (DateTime)cellValue;
-                                if (data.Columns[i].ColumnName == "Data")
-                                    sw.Write(dtValue.ToString("yyyy-MM-dd"));
-                                else if (data.Columns[i].ColumnName == "Ora")
-                                    sw.Write(dtValue.ToString("HH:mm"));
+                                // Если это дата, приводим к понятному виду без системных "хвостов"
+                                if (cellValue is DateTime dt)
+                                {
+                                    // Если колонка называется Ora, берем только время, иначе - только дату
+                                    if (data.Columns[i].ColumnName.Equals("Ora", StringComparison.OrdinalIgnoreCase))
+                                        cellText = dt.ToString("HH:mm:ss");
+                                    else
+                                        cellText = dt.ToString("yyyy-MM-dd");
+                                }
                                 else
-                                    sw.Write(dtValue.ToString());
+                                {
+                                    cellText = cellValue.ToString();
+                                }
                             }
-                            else
-                            {
-                                sw.Write(cellValue?.ToString());
-                            }
+
+                            sw.Write(cellText);
                             if (i < data.Columns.Count - 1) sw.Write(";");
                         }
                         sw.WriteLine();
@@ -1186,7 +1269,20 @@ namespace K450DataExporter
 
                     for (int i = 0; i < reportTable.Columns.Count; i++)
                     {
-                        sw.Write(reportTable.Columns[i].ColumnName);
+                        string columnName = reportTable.Columns[i].ColumnName;
+                        string headerText = columnName;
+
+                        if (parameters.GridFields != null)
+                        {
+                            var fieldInfo = parameters.GridFields.FirstOrDefault(f => f.FieldName.Equals(columnName, StringComparison.OrdinalIgnoreCase));
+                            if (fieldInfo != null)
+                            {
+                                string description = !string.IsNullOrEmpty(fieldInfo.Alias) ? fieldInfo.Alias : "Без описания";
+                                headerText = $"{columnName} ({description})";
+                            }
+                        }
+
+                        sw.Write(headerText);
                         if (i < reportTable.Columns.Count - 1) sw.Write(";");
                     }
                     sw.WriteLine();
@@ -1305,8 +1401,284 @@ namespace K450DataExporter
             UpdateFieldsState();
         }
 
+        // Исправленный обработчик клика по кнопке "Печать ODR"
+        private void btnPrintODR_Click(object sender, EventArgs e)
+        {
+            ExecuteTablePrint(dataTableODR, "Технологический отчет ODR");
+        }
+
+        // Исправленный обработчик клика по кнопке "Печать PDR"
+        private void btnPrintPDR_Click(object sender, EventArgs e)
+        {
+            ExecuteTablePrint(dataTablePDR, "Производственный отчет PDR");
+        }
+
         #endregion
 
+        #region Универсальный многостраничный движок печати (Версия с горизонтальным переносом)
+        private void ExecuteTablePrint(DataGridView grid, string reportTitle)
+        {
+            if (grid == null || grid.Rows.Count == 0)
+            {
+                MessageBox.Show("Нет данных для печати.", "Предупреждение", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            System.Drawing.Printing.PrintDocument printDoc = new System.Drawing.Printing.PrintDocument();
+            printDoc.DefaultPageSettings.Landscape = true;
+            printDoc.DefaultPageSettings.Margins = new System.Drawing.Printing.Margins(30, 30, 30, 30);
+
+            Font fontTitle = new Font("Arial", 11, FontStyle.Bold);
+            Font fontHeader = new Font("Arial", 8.5f, FontStyle.Bold);
+            Font fontBody = new Font("Arial", 8.5f, FontStyle.Regular);
+
+            using (Graphics gMeasure = grid.CreateGraphics())
+            {
+                Dictionary<int, int> calculatedWidths = new Dictionary<int, int>();
+                var visibleColumns = grid.Columns.Cast<DataGridViewColumn>().Where(c => c.Visible).ToList();
+
+                int fixedColumnsCount = Math.Min(3, visibleColumns.Count);
+                var fixedColumns = visibleColumns.Take(fixedColumnsCount).ToList();
+                var dynamicColumns = visibleColumns.Skip(fixedColumnsCount).ToList();
+
+                // 1. Предварительный расчет чистой ширины ячеек
+                foreach (var col in visibleColumns)
+                {
+                    if (col.Name.Equals("Data", StringComparison.OrdinalIgnoreCase) || col.HeaderText.StartsWith("Data", StringComparison.OrdinalIgnoreCase))
+                    {
+                        calculatedWidths[col.Index] = 75;
+                        continue;
+                    }
+                    if (col.Name.Equals("Ora", StringComparison.OrdinalIgnoreCase) || col.HeaderText.StartsWith("Ora", StringComparison.OrdinalIgnoreCase))
+                    {
+                        calculatedWidths[col.Index] = 65;
+                        continue;
+                    }
+                    if (col.Name.Equals("Cy", StringComparison.OrdinalIgnoreCase) || col.HeaderText.StartsWith("Cy", StringComparison.OrdinalIgnoreCase) || col.HeaderText.StartsWith("Цикл", StringComparison.OrdinalIgnoreCase))
+                    {
+                        calculatedWidths[col.Index] = 45;
+                        continue;
+                    }
+
+                    int maxTextWidth = (int)gMeasure.MeasureString(col.HeaderText, fontHeader).Width;
+
+                    // Если длинный текст или есть пробелы — принудительно ужимаем под перенос слов
+                    if (col.HeaderText.Contains(" ") || col.HeaderText.Length > 8)
+                    {
+                        maxTextWidth = (int)(maxTextWidth / 2.4);
+                    }
+
+                    int sampleRows = Math.Min(grid.Rows.Count, 30);
+                    for (int i = 0; i < sampleRows; i++)
+                    {
+                        if (grid.Rows[i].IsNewRow) continue;
+                        object val = grid.Rows[i].Cells[col.Index].Value;
+                        string cellText = val?.ToString() ?? "";
+                        int cellTextWidth = (int)gMeasure.MeasureString(cellText, fontBody).Width;
+                        if (cellTextWidth > maxTextWidth) maxTextWidth = cellTextWidth;
+                    }
+
+                    // Минимальная ширина датчика — 50 пикселей, максимальная — 130
+                    calculatedWidths[col.Index] = Math.Max(50, Math.Min(maxTextWidth + 10, 130));
+                }
+
+                int fixedWidth = fixedColumns.Sum(c => calculatedWidths[c.Index]);
+                int printableWidth = printDoc.DefaultPageSettings.Bounds.Height - 60; // Общая ширина А4 альбомного листа минус поля
+                int availableDynamicWidth = printableWidth - fixedWidth;
+
+                // --- ИСПРАВЛЕНО: Максимально плотная упаковка колонок перед печатью ---
+                List<List<DataGridViewColumn>> columnGroups = new List<List<DataGridViewColumn>>();
+                List<DataGridViewColumn> currentGroup = new List<DataGridViewColumn>();
+                int currentGroupWidth = 0;
+
+                foreach (var col in dynamicColumns)
+                {
+                    int colWidth = calculatedWidths[col.Index];
+
+                    // Теперь мы точно знаем ширину и не переносим колонки раньше времени
+                    if (currentGroupWidth + colWidth > availableDynamicWidth && currentGroup.Count > 0)
+                    {
+                        columnGroups.Add(currentGroup);
+                        currentGroup = new List<DataGridViewColumn>();
+                        currentGroupWidth = 0;
+                    }
+                    currentGroup.Add(col);
+                    currentGroupWidth += colWidth;
+                }
+                if (currentGroup.Count > 0) columnGroups.Add(currentGroup);
+                if (columnGroups.Count == 0) columnGroups.Add(new List<DataGridViewColumn>());
+
+                int headerHeight = 45;
+                int rowHeight = 18;
+                int titleHeight = 25;
+                int spacing = 15;
+
+                int actualRowsCount = grid.Rows.Cast<DataGridViewRow>().Count(r => !r.IsNewRow);
+                int singleBlockDataHeight = actualRowsCount * rowHeight;
+                int totalSingleBlockHeight = headerHeight + singleBlockDataHeight + spacing;
+
+                int printableHeight = printDoc.DefaultPageSettings.Bounds.Width - 60;
+                int halfPageHeight = printableHeight / 2;
+
+                int currentGroupIndex = 0;
+                int currentRowIndex = 0;
+
+                printDoc.PrintPage += (sender, e) =>
+                {
+                    int x = e.MarginBounds.Left;
+                    int y = e.MarginBounds.Top;
+
+                    bool isFirstBlockOnPage = true;
+
+                    while (currentGroupIndex < columnGroups.Count)
+                    {
+                        var currentDynamicGroup = columnGroups[currentGroupIndex];
+
+                        List<DataGridViewColumn> colsToPrint = new List<DataGridViewColumn>();
+                        colsToPrint.AddRange(fixedColumns);
+                        colsToPrint.AddRange(currentDynamicGroup);
+
+                        if (isFirstBlockOnPage && currentRowIndex == 0)
+                        {
+                            e.Graphics.DrawString($"{reportTitle} от {DateTime.Now:dd.MM.yyyy HH:mm}", fontTitle, Brushes.Black, x, y);
+                            y += titleHeight;
+                            isFirstBlockOnPage = false;
+                        }
+
+                        StringFormat headerFormat = new StringFormat
+                        {
+                            Alignment = StringAlignment.Center,
+                            LineAlignment = StringAlignment.Center,
+                            FormatFlags = StringFormatFlags.LineLimit
+                        };
+
+                        // --- ИСПРАВЛЕНО: Равномерное распределение лишнего пространства ---
+                        int totalCalculatedWidth = colsToPrint.Sum(c => calculatedWidths[c.Index]);
+                        int remainingEmptySpace = e.MarginBounds.Width - totalCalculatedWidth;
+
+                        // Считаем добавку к каждому динамическому датчику, чтобы размазать остаток пустых пикселей поровну
+                        int extraWidthPerSensor = 0;
+                        if (remainingEmptySpace > 0 && currentDynamicGroup.Count > 0)
+                        {
+                            extraWidthPerSensor = remainingEmptySpace / currentDynamicGroup.Count;
+                        }
+
+                        // Вспомогательная функция расчета финальной ширины на бумаге
+                        Func<DataGridViewColumn, int> getCellWidth = (col) =>
+                        {
+                            int baseWidth = calculatedWidths[col.Index];
+
+                            // Если колонка фиксированная — возвращаем её чистый размер без изменений!
+                            if (fixedColumns.Contains(col)) return baseWidth;
+
+                            // Если динамический датчик — добавляем ему его равную долю от остатка
+                            return baseWidth + extraWidthPerSensor;
+                        };
+
+                        // 1. Отрисовка шапки
+                        foreach (var col in colsToPrint)
+                        {
+                            int cellWidth = getCellWidth(col);
+                            e.Graphics.DrawRectangle(Pens.Black, x, y, cellWidth, headerHeight);
+                            e.Graphics.DrawString(col.HeaderText, fontHeader, Brushes.Black,
+                                new RectangleF(x + 2, y + 2, cellWidth - 4, headerHeight - 4), headerFormat);
+                            x += cellWidth;
+                        }
+
+                        y += headerHeight;
+                        x = e.MarginBounds.Left;
+
+                        // 2. Отрисовка строк
+                        int tempRowIndex = currentRowIndex;
+                        while (tempRowIndex < grid.Rows.Count)
+                        {
+                            DataGridViewRow row = grid.Rows[tempRowIndex];
+                            if (row.IsNewRow)
+                            {
+                                tempRowIndex++;
+                                continue;
+                            }
+
+                            if (y + rowHeight > e.MarginBounds.Bottom)
+                            {
+                                e.HasMorePages = true;
+                                currentRowIndex = tempRowIndex;
+                                return;
+                            }
+
+                            foreach (var col in colsToPrint)
+                            {
+                                int cellWidth = getCellWidth(col);
+                                string cellValue = "";
+
+                                object rawValue = row.Cells[col.Index].Value;
+                                if (rawValue != DBNull.Value && rawValue != null)
+                                {
+                                    if (rawValue is DateTime dt)
+                                    {
+                                        if (col.Name.Equals("Ora", StringComparison.OrdinalIgnoreCase) || col.HeaderText.StartsWith("Ora", StringComparison.OrdinalIgnoreCase))
+                                            cellValue = dt.ToString("HH:mm:ss");
+                                        else if (col.Name.Equals("Data", StringComparison.OrdinalIgnoreCase) || col.HeaderText.StartsWith("Data", StringComparison.OrdinalIgnoreCase))
+                                            cellValue = dt.ToString("yyyy-MM-dd");
+                                        else
+                                            cellValue = dt.ToString("dd.MM.yyyy HH:mm:ss");
+                                    }
+                                    else
+                                    {
+                                        cellValue = rawValue.ToString();
+                                    }
+                                }
+
+                                e.Graphics.DrawRectangle(Pens.LightGray, x, y, cellWidth, rowHeight);
+                                e.Graphics.DrawString(cellValue, fontBody, Brushes.Black, new RectangleF(x + 3, y + 2, cellWidth - 5, rowHeight - 4));
+                                x += cellWidth;
+                            }
+
+                            y += rowHeight;
+                            x = e.MarginBounds.Left;
+                            tempRowIndex++;
+                        }
+
+                        if (currentGroupIndex < columnGroups.Count - 1)
+                        {
+                            currentGroupIndex++;
+                            currentRowIndex = 0;
+
+                            y += spacing;
+
+                            if ((headerHeight + singleBlockDataHeight) >= halfPageHeight)
+                            {
+                                e.HasMorePages = true;
+                                return;
+                            }
+
+                            if (y + totalSingleBlockHeight < e.MarginBounds.Bottom)
+                            {
+                                continue;
+                            }
+                            else
+                            {
+                                e.HasMorePages = true;
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            e.HasMorePages = false;
+                            break;
+                        }
+                    }
+                };
+
+                using (PrintPreviewDialog previewDlg = new PrintPreviewDialog())
+                {
+                    previewDlg.Document = printDoc;
+                    previewDlg.WindowState = FormWindowState.Maximized;
+                    previewDlg.ShowDialog();
+                }
+            }
+        }
+        #endregion
         #region Действия с полями и диагностика
 
         private void LoadBoundaryValues()
@@ -1602,5 +1974,6 @@ namespace K450DataExporter
             diagnosticsForm.ShowDialog();
         }
         #endregion
+
     }
 }

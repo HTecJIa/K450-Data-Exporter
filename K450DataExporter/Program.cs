@@ -15,6 +15,9 @@ namespace K450DataExporter
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
+            System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
+
             string infPath = null;
 
             // Проверяем параметры командной строки

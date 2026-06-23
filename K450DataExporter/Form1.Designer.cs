@@ -31,6 +31,7 @@ namespace K450DataExporter
         private void InitializeComponent()
         {
             this.groupODR = new System.Windows.Forms.GroupBox();
+            this.btnPrintODR = new System.Windows.Forms.Button();
             this.labelOdrTitle = new System.Windows.Forms.Label();
             this.btn7dDateODR = new System.Windows.Forms.Button();
             this.dataTableODR = new System.Windows.Forms.DataGridView();
@@ -67,6 +68,7 @@ namespace K450DataExporter
             this.radioSelCycle = new System.Windows.Forms.RadioButton();
             this.radioSelPeriod = new System.Windows.Forms.RadioButton();
             this.groupPDR = new System.Windows.Forms.GroupBox();
+            this.btnPrintPDR = new System.Windows.Forms.Button();
             this.labelPdrTitle = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.btn7dDatePDR = new System.Windows.Forms.Button();
@@ -100,6 +102,7 @@ namespace K450DataExporter
             // 
             // groupODR
             // 
+            this.groupODR.Controls.Add(this.btnPrintODR);
             this.groupODR.Controls.Add(this.labelOdrTitle);
             this.groupODR.Controls.Add(this.btn7dDateODR);
             this.groupODR.Controls.Add(this.dataTableODR);
@@ -134,10 +137,21 @@ namespace K450DataExporter
             this.groupODR.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.groupODR.Location = new System.Drawing.Point(7, 4);
             this.groupODR.Name = "groupODR";
-            this.groupODR.Size = new System.Drawing.Size(860, 442);
+            this.groupODR.Size = new System.Drawing.Size(860, 423);
             this.groupODR.TabIndex = 0;
             this.groupODR.TabStop = false;
             this.groupODR.Text = "Operational Data Report";
+            // 
+            // btnPrintODR
+            // 
+            this.btnPrintODR.Enabled = false;
+            this.btnPrintODR.Location = new System.Drawing.Point(728, 164);
+            this.btnPrintODR.Name = "btnPrintODR";
+            this.btnPrintODR.Size = new System.Drawing.Size(102, 25);
+            this.btnPrintODR.TabIndex = 34;
+            this.btnPrintODR.Text = "Print";
+            this.btnPrintODR.UseVisualStyleBackColor = true;
+
             // 
             // labelOdrTitle
             // 
@@ -258,7 +272,7 @@ namespace K450DataExporter
             // 
             // btnExportODR
             // 
-            this.btnExportODR.Location = new System.Drawing.Point(747, 137);
+            this.btnExportODR.Location = new System.Drawing.Point(728, 137);
             this.btnExportODR.Name = "btnExportODR";
             this.btnExportODR.Size = new System.Drawing.Size(102, 25);
             this.btnExportODR.TabIndex = 18;
@@ -267,9 +281,9 @@ namespace K450DataExporter
             // 
             // btnShowODR
             // 
-            this.btnShowODR.Location = new System.Drawing.Point(666, 137);
+            this.btnShowODR.Location = new System.Drawing.Point(634, 137);
             this.btnShowODR.Name = "btnShowODR";
-            this.btnShowODR.Size = new System.Drawing.Size(75, 25);
+            this.btnShowODR.Size = new System.Drawing.Size(90, 25);
             this.btnShowODR.TabIndex = 17;
             this.btnShowODR.Text = "Show";
             this.btnShowODR.UseVisualStyleBackColor = true;
@@ -466,6 +480,7 @@ namespace K450DataExporter
             // 
             // groupPDR
             // 
+            this.groupPDR.Controls.Add(this.btnPrintPDR);
             this.groupPDR.Controls.Add(this.labelPdrTitle);
             this.groupPDR.Controls.Add(this.label2);
             this.groupPDR.Controls.Add(this.btn7dDatePDR);
@@ -489,18 +504,28 @@ namespace K450DataExporter
             this.groupPDR.Controls.Add(this.btnFirstTimePDR);
             this.groupPDR.Controls.Add(this.btnFirstDatePDR);
             this.groupPDR.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupPDR.Location = new System.Drawing.Point(7, 446);
+            this.groupPDR.Location = new System.Drawing.Point(7, 433);
             this.groupPDR.Name = "groupPDR";
-            this.groupPDR.Size = new System.Drawing.Size(860, 324);
+            this.groupPDR.Size = new System.Drawing.Size(860, 337);
             this.groupPDR.TabIndex = 1;
             this.groupPDR.TabStop = false;
             this.groupPDR.Text = "Production Data Report";
+            // 
+            // btnPrintPDR
+            // 
+            this.btnPrintPDR.Enabled = false;
+            this.btnPrintPDR.Location = new System.Drawing.Point(728, 129);
+            this.btnPrintPDR.Name = "btnPrintPDR";
+            this.btnPrintPDR.Size = new System.Drawing.Size(102, 25);
+            this.btnPrintPDR.TabIndex = 35;
+            this.btnPrintPDR.Text = "Print";
+            this.btnPrintPDR.UseVisualStyleBackColor = true;
             // 
             // labelPdrTitle
             // 
             this.labelPdrTitle.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
             this.labelPdrTitle.ForeColor = System.Drawing.Color.Blue;
-            this.labelPdrTitle.Location = new System.Drawing.Point(6, 121);
+            this.labelPdrTitle.Location = new System.Drawing.Point(5, 136);
             this.labelPdrTitle.Name = "labelPdrTitle";
             this.labelPdrTitle.Size = new System.Drawing.Size(514, 20);
             this.labelPdrTitle.TabIndex = 34;
@@ -510,7 +535,7 @@ namespace K450DataExporter
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(520, 77);
+            this.label2.Location = new System.Drawing.Point(520, 72);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(14, 20);
             this.label2.TabIndex = 34;
@@ -518,7 +543,7 @@ namespace K450DataExporter
             // 
             // btn7dDatePDR
             // 
-            this.btn7dDatePDR.Location = new System.Drawing.Point(332, 46);
+            this.btn7dDatePDR.Location = new System.Drawing.Point(332, 41);
             this.btn7dDatePDR.Name = "btn7dDatePDR";
             this.btn7dDatePDR.Size = new System.Drawing.Size(90, 25);
             this.btn7dDatePDR.TabIndex = 34;
@@ -529,7 +554,7 @@ namespace K450DataExporter
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(520, 47);
+            this.label3.Location = new System.Drawing.Point(520, 42);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(14, 20);
             this.label3.TabIndex = 33;
@@ -539,7 +564,7 @@ namespace K450DataExporter
             // 
             this.lblLastBtnPDR.AutoSize = true;
             this.lblLastBtnPDR.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLastBtnPDR.Location = new System.Drawing.Point(658, 19);
+            this.lblLastBtnPDR.Location = new System.Drawing.Point(658, 14);
             this.lblLastBtnPDR.Name = "lblLastBtnPDR";
             this.lblLastBtnPDR.Size = new System.Drawing.Size(40, 20);
             this.lblLastBtnPDR.TabIndex = 23;
@@ -548,7 +573,7 @@ namespace K450DataExporter
             // lbl7DayPDR
             // 
             this.lbl7DayPDR.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lbl7DayPDR.Location = new System.Drawing.Point(338, 19);
+            this.lbl7DayPDR.Location = new System.Drawing.Point(338, 14);
             this.lbl7DayPDR.Name = "lbl7DayPDR";
             this.lbl7DayPDR.Size = new System.Drawing.Size(83, 20);
             this.lbl7DayPDR.TabIndex = 33;
@@ -558,7 +583,7 @@ namespace K450DataExporter
             // 
             this.lblToFldPDR.AutoSize = true;
             this.lblToFldPDR.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblToFldPDR.Location = new System.Drawing.Point(559, 19);
+            this.lblToFldPDR.Location = new System.Drawing.Point(559, 14);
             this.lblToFldPDR.Name = "lblToFldPDR";
             this.lblToFldPDR.Size = new System.Drawing.Size(27, 20);
             this.lblToFldPDR.TabIndex = 21;
@@ -568,7 +593,7 @@ namespace K450DataExporter
             // 
             this.lblFromFldPDR.AutoSize = true;
             this.lblFromFldPDR.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFromFldPDR.Location = new System.Drawing.Point(445, 19);
+            this.lblFromFldPDR.Location = new System.Drawing.Point(445, 14);
             this.lblFromFldPDR.Name = "lblFromFldPDR";
             this.lblFromFldPDR.Size = new System.Drawing.Size(46, 20);
             this.lblFromFldPDR.TabIndex = 30;
@@ -578,7 +603,7 @@ namespace K450DataExporter
             // 
             this.lblFrstBtnsPDR.AutoSize = true;
             this.lblFrstBtnsPDR.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblFrstBtnsPDR.Location = new System.Drawing.Point(260, 19);
+            this.lblFrstBtnsPDR.Location = new System.Drawing.Point(260, 14);
             this.lblFrstBtnsPDR.Name = "lblFrstBtnsPDR";
             this.lblFrstBtnsPDR.Size = new System.Drawing.Size(40, 20);
             this.lblFrstBtnsPDR.TabIndex = 20;
@@ -586,7 +611,7 @@ namespace K450DataExporter
             // 
             // textToTimePDR
             // 
-            this.textToTimePDR.Location = new System.Drawing.Point(536, 76);
+            this.textToTimePDR.Location = new System.Drawing.Point(536, 71);
             this.textToTimePDR.Name = "textToTimePDR";
             this.textToTimePDR.Size = new System.Drawing.Size(87, 23);
             this.textToTimePDR.TabIndex = 30;
@@ -594,21 +619,21 @@ namespace K450DataExporter
             // dataTablePDR
             // 
             this.dataTablePDR.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dataTablePDR.Location = new System.Drawing.Point(6, 143);
+            this.dataTablePDR.Location = new System.Drawing.Point(6, 156);
             this.dataTablePDR.Name = "dataTablePDR";
             this.dataTablePDR.Size = new System.Drawing.Size(848, 175);
             this.dataTablePDR.TabIndex = 20;
             // 
             // textToDatePDR
             // 
-            this.textToDatePDR.Location = new System.Drawing.Point(536, 47);
+            this.textToDatePDR.Location = new System.Drawing.Point(536, 42);
             this.textToDatePDR.Name = "textToDatePDR";
             this.textToDatePDR.Size = new System.Drawing.Size(87, 23);
             this.textToDatePDR.TabIndex = 29;
             // 
             // btnLastTimePDR
             // 
-            this.btnLastTimePDR.Location = new System.Drawing.Point(634, 76);
+            this.btnLastTimePDR.Location = new System.Drawing.Point(634, 71);
             this.btnLastTimePDR.Name = "btnLastTimePDR";
             this.btnLastTimePDR.Size = new System.Drawing.Size(90, 25);
             this.btnLastTimePDR.TabIndex = 27;
@@ -619,7 +644,7 @@ namespace K450DataExporter
             // 
             this.lblTimePDR.AutoSize = true;
             this.lblTimePDR.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblTimePDR.Location = new System.Drawing.Point(174, 75);
+            this.lblTimePDR.Location = new System.Drawing.Point(174, 70);
             this.lblTimePDR.Name = "lblTimePDR";
             this.lblTimePDR.Size = new System.Drawing.Size(48, 20);
             this.lblTimePDR.TabIndex = 18;
@@ -627,14 +652,14 @@ namespace K450DataExporter
             // 
             // textFromTimePDR
             // 
-            this.textFromTimePDR.Location = new System.Drawing.Point(430, 76);
+            this.textFromTimePDR.Location = new System.Drawing.Point(430, 71);
             this.textFromTimePDR.Name = "textFromTimePDR";
             this.textFromTimePDR.Size = new System.Drawing.Size(87, 23);
             this.textFromTimePDR.TabIndex = 28;
             // 
             // btnLastDatePDR
             // 
-            this.btnLastDatePDR.Location = new System.Drawing.Point(634, 47);
+            this.btnLastDatePDR.Location = new System.Drawing.Point(634, 42);
             this.btnLastDatePDR.Name = "btnLastDatePDR";
             this.btnLastDatePDR.Size = new System.Drawing.Size(90, 25);
             this.btnLastDatePDR.TabIndex = 26;
@@ -643,7 +668,7 @@ namespace K450DataExporter
             // 
             // btnExportPDR
             // 
-            this.btnExportPDR.Location = new System.Drawing.Point(747, 112);
+            this.btnExportPDR.Location = new System.Drawing.Point(728, 102);
             this.btnExportPDR.Name = "btnExportPDR";
             this.btnExportPDR.Size = new System.Drawing.Size(102, 25);
             this.btnExportPDR.TabIndex = 20;
@@ -652,16 +677,16 @@ namespace K450DataExporter
             // 
             // btnShowPDR
             // 
-            this.btnShowPDR.Location = new System.Drawing.Point(666, 112);
+            this.btnShowPDR.Location = new System.Drawing.Point(634, 102);
             this.btnShowPDR.Name = "btnShowPDR";
-            this.btnShowPDR.Size = new System.Drawing.Size(75, 25);
+            this.btnShowPDR.Size = new System.Drawing.Size(90, 25);
             this.btnShowPDR.TabIndex = 19;
             this.btnShowPDR.Text = "Show";
             this.btnShowPDR.UseVisualStyleBackColor = true;
             // 
             // textFromDatePDR
             // 
-            this.textFromDatePDR.Location = new System.Drawing.Point(430, 47);
+            this.textFromDatePDR.Location = new System.Drawing.Point(430, 42);
             this.textFromDatePDR.Name = "textFromDatePDR";
             this.textFromDatePDR.Size = new System.Drawing.Size(87, 23);
             this.textFromDatePDR.TabIndex = 27;
@@ -670,7 +695,7 @@ namespace K450DataExporter
             // 
             this.lblDatePDR.AutoSize = true;
             this.lblDatePDR.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDatePDR.Location = new System.Drawing.Point(174, 43);
+            this.lblDatePDR.Location = new System.Drawing.Point(174, 38);
             this.lblDatePDR.Name = "lblDatePDR";
             this.lblDatePDR.Size = new System.Drawing.Size(48, 20);
             this.lblDatePDR.TabIndex = 17;
@@ -678,7 +703,7 @@ namespace K450DataExporter
             // 
             // btnFirstTimePDR
             // 
-            this.btnFirstTimePDR.Location = new System.Drawing.Point(234, 77);
+            this.btnFirstTimePDR.Location = new System.Drawing.Point(234, 72);
             this.btnFirstTimePDR.Name = "btnFirstTimePDR";
             this.btnFirstTimePDR.Size = new System.Drawing.Size(90, 25);
             this.btnFirstTimePDR.TabIndex = 25;
@@ -687,7 +712,7 @@ namespace K450DataExporter
             // 
             // btnFirstDatePDR
             // 
-            this.btnFirstDatePDR.Location = new System.Drawing.Point(234, 46);
+            this.btnFirstDatePDR.Location = new System.Drawing.Point(234, 41);
             this.btnFirstDatePDR.Name = "btnFirstDatePDR";
             this.btnFirstDatePDR.Size = new System.Drawing.Size(90, 25);
             this.btnFirstDatePDR.TabIndex = 24;
@@ -790,6 +815,8 @@ namespace K450DataExporter
         private System.Windows.Forms.Label lbl7DayPDR;
         private System.Windows.Forms.Label labelOdrTitle;
         private System.Windows.Forms.Label labelPdrTitle;
+        private System.Windows.Forms.Button btnPrintODR;
+        private System.Windows.Forms.Button btnPrintPDR;
     }
 }
 
